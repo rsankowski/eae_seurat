@@ -22,7 +22,7 @@ load(file.path("data", "seurat.RData"))
 order_clusters <- data.frame(seurat_clusters= all@meta.data[,"seurat_clusters"], row.names = rownames(all@meta.data)) %>%
   bind_cols(as.data.frame(t(all[["SCT"]]@scale.data))) %>%
   group_by(seurat_clusters) %>%
-  summarize(.funs=mean) %>%
+  summarize_all(.funs=mean) %>%
   as.data.frame()
 
 rownames(order_clusters) <- order_clusters$seurat_clusters
@@ -123,8 +123,8 @@ if (!file.exists(file.path("data", "diffgenes_ctrl_vs_aea.RData"))) {
   all2_genes <- FindMarkers(all2, 
                            ident.1 = "EAE_MG",
                            ident.2 = "Ctrl_MG",
-                          loaeac.threshold = 0.01,
-                          min.pct = 0.01) %>%
+                           logfc.threshold = 0,
+                          min.pct = 0) %>%
     rownames_to_column(var="gene") %>%
     mutate(Condition_upregulated = case_when(
       avg_log2FC > 0 ~ "EAE",
